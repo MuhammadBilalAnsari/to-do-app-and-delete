@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.1.3/axios.min.js"
+        integrity="sha512-0qU9M9jfqPw6FKkPafM3gy2CBAvUWnYVOfNPDYKVuRTel1PrciTj+a9P3loJB+j0QmN2Y0JYQmkBBS8W+mbezg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.1.3/axios.js"
+        integrity="sha512-xjzDqCmpabFznyCZ92vM1F0gg8ExgSukopZQOCcVbObLyJSmZAkaB9wzOCeSClearljJcjRh67cGDp2uv4diLg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+</head>
+
+<body>
+<!-- 
+    <style>
+        .main {
+            width: 80%;
+            margin: auto;
+            background-color: honeydew;
+        }
+
+
+        .center {
+            text-align: center;
+        }
+
+        #spans {
+            display: inline-block;
+            display: flex;
+            justify-content: end;
+            width: 100%;
+
+        }
+
+        #btns {
+            align-content: flex-end;
+            display: inline-block;
+            display: flex;
+            justify-content: end;
+            width: 100%;
+
+            /* display: flex; */
+
+        }
+
+        #result {
+            width: 100%;
+        }
+    </style> -->
+
+    <body>
+        <!-- Forms  -->
+        <div class="main">
+            <form onsubmit="postAllTodos(); return false">
+                <div class="mb-3">
+                    <label>TODO</label>
+                    <input type="text" class="form-control" id="todo">
+                    <div class="d-grid gap-1">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+
+                </div>
+            </form><br>
+
+
+            <div class="center">
+                <button onclick="getAllTodos()" class="btn btn-primary">Refresh</button>
+                <button onclick="deletesAll()" class="btn btn-primary">Delete</button>
+
+            </div>
+            <h3 id="result"></h3>
+        </div>
+
+        </div>
+
+
+        <script>
+
+
+            let API =  'https://gold-modern-coypu.cyclic.app/' 
+            //  let API=  'http://localhost:3000';
+            let result = document.querySelector("#result")
+
+            /////////////////////////Post
+            function postAllTodos() {
+                let todotext = document.querySelector("#todo").value;
+
+                axios.post(`${API}//todo`, { text: todotext }).then(function (response) {
+                    console.log(response.data)
+                    result.innerHTML = ''
+                    getAllTodos()
+
+
+                }).catch(function (error) {
+                    console.log(error)
+                })
+
+            }
+            /////////////////////////GET
+            function getAllTodos() {
+                axios.get(`${API}//todos`).then(function (response) {
+                    console.log(response.data)
+                    result.innerHTML = ''
+
+
+
+                    response.data.data.map(eachTodo => {
+                        result.innerHTML += `<div id="spans"><span id="span-${eachTodo._id}" class="result">${eachTodo.text}</span>
+                        <div id="btns"><button onclick="updatebyId('${eachTodo._id}'   )" class="btn btn-primary btns"  id='edit-${eachTodo._id}'>Edit</button>&nbsp
+                         <button onclick="deletebyId('${eachTodo._id}'   )" class="btn btn-primary  " id='delete-${eachTodo._id}'>Delete</button></div></div>`
+                        result.innerHTML += ` <form id="form-${eachTodo._id}" style="display:none;"  onsubmit="updatedTodo('${eachTodo._id}'); return false">
+                <input type="text" id="input-${eachTodo._id}" value='${eachTodo.text}'>
+                <button class="btn btn-primary">Update</button>
+                </form>`
+                        // result.innerHTML += `<button onclick="updatebyId('${eachTodo._id}'   )" class="btn btn-primary btns"  id='edit-${eachTodo._id}'>Edit</button>`
+                        // result.innerHTML += `&nbsp <button onclick="deletebyId('${eachTodo._id}'   )" class="btn btn-primary btns " id='delete-${eachTodo._id}'>Delete</button>`
+
+
+                        result.innerHTML += '<br>'
+
+                    })
+                }).catch(function (error) {
+                    console.log(error)
+                })
+
+            }
+            getAllTodos()
+
+            function updatebyId(id) {
+                let forms = document.querySelector(`#form-${id}`)
+
+                forms.style.display = "inline"
+
+                document.querySelector(`#span-${id}`).style.display = "none"
+                document.querySelector(`#delete-${id}`).style.display = "none"
+                document.querySelector(`#edit-${id}`).style.display = "none"
+
+            }
+
+            function updatedTodo(id) {
+                let updatedText = document.querySelector(`#input-${id}`).value
+                axios.put(`${API}/todo/${id}`, { text: updatedText }).then(function (response) {
+                    console.log(response.data)
+
+                    getAllTodos()
+
+
+                }).catch(function (error) {
+                    console.log(error)
+                })
+            }
+
+
+            /////////////////////////Delete
+            function deletesAll() {
+                let code = prompt("Enter Password ")
+          if (code === "9687") {
+                axios.delete(`${API}//del`).then(function (response) {
+                    console.log(response.data)
+                    result.innerHTML = ''
+
+
+                }).catch(function (error) {
+                    console.log(error)
+                })
+            }
+            }
+            function deletebyId(id) {
+                axios.delete(`${API}/todo/${id}`).then(function (response) {
+                    console.log(response.data)
+                    getAllTodos()
+
+
+                }).catch(function (error) {
+                    console.log(error)
+                })
+            }
+        setInterval(getAllTodos, 3000)
+
+
+        </script>
+
+
+    </body>
+
+</html>
